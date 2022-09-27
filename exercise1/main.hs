@@ -16,10 +16,10 @@ bruteforceSecretKey base prime pk = bruteforceSecretKey' 0 where
       else bruteforceSecretKey' (succ current)
       
 createKey :: Integer -> Integer -> Integer -> Integer
-createKey base prime exponent = ((base ^ exponent) `mod` prime)-- `debug` ("crateKey(base: " ++ (show base) ++ ", prime: ")
+createKey base prime exponent = (base ^ exponent) `mod` prime
 
-encryptMsg :: Integer -> Integer -> Integer
-encryptMsg sharedKey msg = sharedKey * msg
+encryptMsg :: Integer -> Integer -> Integer -> Integer
+encryptMsg sharedKey prime msg = sharedKey * msg
 
 decryptMsg :: Integer -> Integer -> Integer
 decryptMsg sharedKey msg = msg `div` sharedKey
@@ -51,15 +51,26 @@ tests = do
   printf "[TESTS]: Shared key equality check. %s == %s.. %s\n" (show aSharedKey) (show bSharedKey) sharedKeyCheck
 
   -- Alice encrypts the message:
-  aEncryptedMsg = encryptMsg aSharedKey msg
-  bEncryptMsg = encryptMsg bSharedKey msg
+  let aEncryptedMsg = encryptMsg aSharedKey p m
+  let bEncryptMsg = encryptMsg bSharedKey p m
 
+  -- This is a little silly as the sharedKey should be equal but oh well
   let encryptedMsgCheck = if aEncryptedMsg == bEncryptMsg then "OK" else "FAILED"
   printf "[TESTS]: Encrypted msg equality check: %s\n" encryptedMsgCheck
 
+  let encryptedMsgCheck2 = if aEncryptedMsg == 560 then "OK" else "FAILED"
+  printf "[TESTS]: Encrypted message (%s) was encrypted to expected value (26): %s\n" (show aEncryptedMsg) encryptedMsgCheck2
 
+  let aDecryptedMsg = decryptMsg aSharedKey aEncryptedMsg
+  let bDecryptedMsg = decryptMsg bSharedKey bEncryptMsg 
+  
+  printf "[TESTS]: Bob decrypts message %s with shared key %s: %s\n" (show bEncryptMsg) (show bSharedKey) (show bDecryptedMsg)
 
+  let aDecryptedMsgCheck = if aDecryptedMsg == m then "OK" else "FAILED"
+  let bDecryptedMsgCheck = if bDecryptedMsg == m then "OK" else "FAILED"
 
+  printf "[TESTS]: Decrypted msg check for Alice (Msg: \"%s\").. %s\n" (show aDecryptedMsg) aDecryptedMsgCheck
+  printf "[TESTS]: Decrypted msg check for Bob (Msg: \"%s\").. %s\n" (show bDecryptedMsg) bDecryptedMsgCheck
 
   return ()
 
@@ -67,12 +78,6 @@ tests = do
 
 main :: IO Integer
 main = do
-
-
-
-
-
-  tests
   -----------------------------------------------------------------------------
   -- Assignment 1
   -----------------------------------------------------------------------------
@@ -90,7 +95,7 @@ main = do
   printf "Alice generates the shared key: %s\n" (show sharedKey)
 
   let message = 2000
-  let messageEncrypted = encryptMsg sharedKey message
+  let messageEncrypted = encryptMsg sharedKey p message
   printf "Alice encrypts the message \"%s\": %s\n" (show message) (show messageEncrypted)
 
   -- Alice now sends the pair C = (alicePK, messageEncrypted) to Bob
