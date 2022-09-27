@@ -1,122 +1,124 @@
 import Text.Printf
-import Debug.Trace
-
-debug = flip trace
-
--- Defining some constants used in the assignment
-g = 666  -- The primitive root
-p = 6661 -- The chosen prime number
 
 -- Defining some helping functions
 bruteforceSecretKey :: Integer -> Integer -> Integer -> Integer
 bruteforceSecretKey base prime pk = bruteforceSecretKey' 0 where 
   bruteforceSecretKey' current =
-    if (base ^ current) `mod` prime == pk 
+    if ((base ^ current) `mod` prime) == pk 
       then current
       else bruteforceSecretKey' (succ current)
       
 createKey :: Integer -> Integer -> Integer -> Integer
-createKey base prime exponent = (base ^ exponent) `mod` prime
+createKey base exponent prime = (base ^ exponent) `mod` prime
 
-encryptMsg :: Integer -> Integer -> Integer -> Integer
-encryptMsg sharedKey prime msg = sharedKey * msg
+encryptMsg :: Integer -> Integer -> Integer
+encryptMsg sharedKey msg = sharedKey * msg
 
 decryptMsg :: Integer -> Integer -> Integer
 decryptMsg sharedKey msg = msg `div` sharedKey
 
--- Using the `tests` function to verify a working example from the video
--- https://www.youtube.com/watch?v=pyirxbHuvOw
-tests = do
-  let g = 5
-  let p = 89
-  let m = 35
 
-  let bSK = 8
-  let aSK = 13
-  printf "[TESTS]: Initializing with values: g = %s, p = %s, m = %s\n" (show g) (show p) (show m)
+assignment1 :: Integer -> Integer -> Integer -> IO (Integer, Integer)
+assignment1 p g pkb = do
+  -- Alice wants to send Bob a confidential message and so this assignment 
+  -- starts with Bob providing Alice with a public key.
 
-  let bPK = createKey g p bSK
-  let aPK = createKey g p aSK
+  -- This is the message that Alice wants to send to Bob
+  let message = 2000
 
-  let bPKCheck = if bPK == 4 then "OK" else "FAILED"
-  let aPKCheck = if aPK == 40 then "OK" else "FAILED"
+  -- Alice generates her own SK and PK to in order to generate the shared key
+  let ska = 414
+  let pka = createKey g ska p
+  printf "Alice generates her SK/PK pair: (%s, %s)\n" (show ska) (show pka)
 
-  printf "[TESTS]: Alice PK check: expected 40, was %s. Check: %s\n" (show aPK) aPKCheck
-  printf "[TESTS]: Bob PK check: expected 4, was %s. Check: %s\n" (show bPK) bPKCheck
+  let sharedKey = createKey pkb ska p
+  printf "Alice generates the shared key: %s\n" (show sharedKey)
 
-  let bSharedKey = createKey aPK p bSK
-  let aSharedKey = createKey bPK p aSK
+  let messageEncrypted = encryptMsg sharedKey message
+  printf "Alice encrypts the message \"%s\": %s\n" (show message) (show messageEncrypted)
 
-  let sharedKeyCheck = if aSharedKey == bSharedKey then "OK" else "FAILED"
-  printf "[TESTS]: Shared key equality check. %s == %s.. %s\n" (show aSharedKey) (show bSharedKey) sharedKeyCheck
+  -- Alice now sends the pair C = (alicePK, messageEncrypted) to Bob
+  putStrLn "*** Alice sends the message to Bob ***"
 
-  -- Alice encrypts the message:
-  let aEncryptedMsg = encryptMsg aSharedKey p m
-  let bEncryptMsg = encryptMsg bSharedKey p m
+  -- This is the message sent to Bob (that _someone_ might be able to intercept ;-))
+  return (pka, messageEncrypted)
 
-  -- This is a little silly as the sharedKey should be equal but oh well
-  let encryptedMsgCheck = if aEncryptedMsg == bEncryptMsg then "OK" else "FAILED"
-  printf "[TESTS]: Encrypted msg equality check: %s\n" encryptedMsgCheck
 
-  let encryptedMsgCheck2 = if aEncryptedMsg == 560 then "OK" else "FAILED"
-  printf "[TESTS]: Encrypted message (%s) was encrypted to expected value (26): %s\n" (show aEncryptedMsg) encryptedMsgCheck2
+assignment2 :: Integer -> Integer -> Integer -> (Integer, Integer) -> IO ()
+assignment2 p g pkb (c1, c2) = do
+  -- Eve have now intercepted the encrypted message and will now attempt
+  -- to find the secret key of Bob to reconstruct Alice message
 
-  let aDecryptedMsg = decryptMsg aSharedKey aEncryptedMsg
-  let bDecryptedMsg = decryptMsg bSharedKey bEncryptMsg 
-  
-  printf "[TESTS]: Bob decrypts message %s with shared key %s: %s\n" (show bEncryptMsg) (show bSharedKey) (show bDecryptedMsg)
-
-  let aDecryptedMsgCheck = if aDecryptedMsg == m then "OK" else "FAILED"
-  let bDecryptedMsgCheck = if bDecryptedMsg == m then "OK" else "FAILED"
-
-  printf "[TESTS]: Decrypted msg check for Alice (Msg: \"%s\").. %s\n" (show aDecryptedMsg) aDecryptedMsgCheck
-  printf "[TESTS]: Decrypted msg check for Bob (Msg: \"%s\").. %s\n" (show bDecryptedMsg) bDecryptedMsgCheck
+  -- Eve can find Bob's secret key by making a brute force attack on his
+  -- public key
+  let bobSKBroken = bruteforceSecretKey g p pkb
+  printf "Eve intercepts the messages and finds Bob's secret key by brute force: %s\n" (show bobSKBroken)
+  -- Eve also needs to find out the secret key of alice
+  let brokenSharedKey = createKey c1 bobSKBroken p
+  printf "Eve generates the shared key that was used to decrypt the message with: %s\n" (show brokenSharedKey)
+  -- Now Eve can proceed to decrypt the message
+  let messageDecrypted = decryptMsg brokenSharedKey c2
+  printf "Eve decrypts the intercepted message to: %s\n" (show messageDecrypted)
 
   return ()
 
+assignment3 :: (Integer, Integer) -> IO (Integer, Integer)
+assignment3 (c1, c2) = do
+  -- This funciton only reflects the actions that Mallory takes. This function returns
+  -- The tampered message for Bob to decrypt
+  putStrLn "Mallory intercepts the message going from Alice to Bob."
+  putStrLn "Mallory alters the message and sends it along to Bob."
 
+  let c2' = c2 * 3
+  return (c1, c2')
+
+
+bobDecryptsMsg :: Integer -> Integer -> Integer -> (Integer, Integer) -> IO Integer
+bobDecryptsMsg p g pkb (c1, c2) = do
+  let skb = bruteforceSecretKey g p pkb
+  let sharedKey = createKey c1 skb p
+  return (decryptMsg sharedKey c2)
+  
 
 main :: IO Integer
 main = do
   -----------------------------------------------------------------------------
   -- Assignment 1
   -----------------------------------------------------------------------------
+  putStrLn "########## Assignment 1 ##########"
 
-  -- Alice wants to send Bob a confidential message and so this assignment 
-  -- starts with Bob providing Alice with a public key.
-  let bobPK = 2227
+  -- Alice wants to send Bob a confidential message. Bob provides Alice with 
+  -- his secret key, consisting of the generator g, prime p and his public
+  -- encryption key
+  let (p, g, pkb) = (6661, 666, 2227)
 
-  -- Alice generates her own SK and PK to in order to generate the shared key
-  let aliceSK = 414
-  let alicePK = createKey g p aliceSK
-  printf "Alice generates her SK/PK pair: (%s, %s)\n" (show aliceSK) (show alicePK)
-
-  let sharedKey = createKey bobPK p aliceSK
-  printf "Alice generates the shared key: %s\n" (show sharedKey)
-
-  let message = 2000
-  let messageEncrypted = encryptMsg sharedKey p message
-  printf "Alice encrypts the message \"%s\": %s\n" (show message) (show messageEncrypted)
-
-  -- Alice now sends the pair C = (alicePK, messageEncrypted) to Bob
-  printf "*** Alice sends the message to Bob ***\n"
-  let (c1, c2) = (alicePK, messageEncrypted)
+  -- Solving assignment 1 within function `assignment1` to only reveal the 
+  -- message that will be sent to Bob
+  c <- assignment1 p g pkb
 
 
   -----------------------------------------------------------------------------
   -- Assignment 2
   -----------------------------------------------------------------------------
+  putStrLn ""
+  putStrLn "########## Assignment 2 ##########"
 
-  -- Eve have not intercepted the encrypted message and will now attempt
-  -- to find the secret key of Bob to reconstruct Alice message
+  assignment2 p g pkb c
+  
+  -----------------------------------------------------------------------------
+  -- Assignment 3
+  -----------------------------------------------------------------------------
+  putStrLn ""
+  putStrLn "########## Assignment 3 ##########"
+  
 
-  -- Eve can find Bob's secret key by making a brute force attack on his
-  -- public key
-  let bobSKBroken = bruteforceSecretKey g p bobPK
-  -- Eve also needs to find out the secret key of alice
-  let aliceSKBroken = bruteforceSecretKey g p c1
-  -- Now Eve can proceed to decrypt the message
-  let messageDecrypted = decryptMsg bobSKBroken 
-  -- printf "Eve decrypts the intercepted message to: %s\n" (show messageDecrypted)
+  (c1, c2) <- assignment3 c
+
+  printf "Bob now receives the tampered message C = (%s, %s)\n" (show c1) (show c2)
+  -- Bob decrypts the message with the shared key (Bob can generate this, but we'll
+  -- use the previously generated one from Alice for convenience)
+  tamperedMessageDecrypted <- bobDecryptsMsg p g pkb (c1, c2)
+
+  printf "Bob decrypts the tampered message into: %s\n" (show tamperedMessageDecrypted)
 
   return 0
