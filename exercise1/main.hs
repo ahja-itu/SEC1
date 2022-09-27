@@ -1,22 +1,51 @@
 import Text.Printf
 
--- Defining some helping functions
-bruteforceSecretKey :: Integer -> Integer -> Integer -> Integer
-bruteforceSecretKey base prime pk = bruteforceSecretKey' 0 where 
-  bruteforceSecretKey' current =
-    if ((base ^ current) `mod` prime) == pk 
-      then current
-      else bruteforceSecretKey' (succ current)
-      
-createKey :: Integer -> Integer -> Integer -> Integer
-createKey base exponent prime = (base ^ exponent) `mod` prime
+main :: IO Integer
+main = do
+  -----------------------------------------------------------------------------
+  -- Assignment 1
+  -----------------------------------------------------------------------------
+  putStrLn "########## Assignment 1 ##########"
 
-encryptMsg :: Integer -> Integer -> Integer
-encryptMsg sharedKey msg = sharedKey * msg
+  -- Alice wants to send Bob a confidential message. Bob provides Alice with 
+  -- his secret key, consisting of the generator g, prime p and his public
+  -- encryption key
+  let (p, g, pkb) = (6661, 666, 2227)
 
-decryptMsg :: Integer -> Integer -> Integer
-decryptMsg sharedKey msg = msg `div` sharedKey
+  -- Solving assignment 1 within function `assignment1` to only reveal the 
+  -- message that will be sent to Bob
+  c <- assignment1 p g pkb
 
+
+  -----------------------------------------------------------------------------
+  -- Assignment 2
+  -----------------------------------------------------------------------------
+  putStrLn ""
+  putStrLn "########## Assignment 2 ##########"
+
+  -- Eve intercepts the message being sent to Bob and makes an attempt to 
+  -- read it by decrypting.
+  -- Her actions are put in the `assignment2` function to limit her access to
+  -- the public available information in the exchange
+  assignment2 p g pkb c
+  
+  -----------------------------------------------------------------------------
+  -- Assignment 3
+  -----------------------------------------------------------------------------
+  putStrLn ""
+  putStrLn "########## Assignment 3 ##########"
+  
+  -- Mallory intercepts the mssage and tampers with it. Her actions are isolated to
+  -- the function `assignment3` where we receive the tampered message below
+  (c1, c2) <- assignment3 c
+
+  printf "Bob now receives the tampered message C = (%s, %s)\n" (show c1) (show c2)
+  tamperedMessageDecrypted <- bobDecryptsMsg p g pkb (c1, c2)
+  printf "Bob decrypts the tampered message into: %s\n" (show tamperedMessageDecrypted)
+
+  return 0
+
+-- Assignment functions to limit the scope of which variables are available to given actors
 
 assignment1 :: Integer -> Integer -> Integer -> IO (Integer, Integer)
 assignment1 p g pkb = do
@@ -72,53 +101,27 @@ assignment3 (c1, c2) = do
   let c2' = c2 * 3
   return (c1, c2')
 
+-- Defining some helping functions
+  
+bruteforceSecretKey :: Integer -> Integer -> Integer -> Integer
+bruteforceSecretKey base prime pk = bruteforceSecretKey' 0 where 
+  bruteforceSecretKey' current =
+    if ((base ^ current) `mod` prime) == pk 
+      then current
+      else bruteforceSecretKey' (succ current)
+      
+createKey :: Integer -> Integer -> Integer -> Integer
+createKey base exponent prime = (base ^ exponent) `mod` prime
+
+encryptMsg :: Integer -> Integer -> Integer
+encryptMsg sharedKey msg = sharedKey * msg
+
+decryptMsg :: Integer -> Integer -> Integer
+decryptMsg sharedKey msg = msg `div` sharedKey
 
 bobDecryptsMsg :: Integer -> Integer -> Integer -> (Integer, Integer) -> IO Integer
 bobDecryptsMsg p g pkb (c1, c2) = do
   let skb = bruteforceSecretKey g p pkb
   let sharedKey = createKey c1 skb p
   return (decryptMsg sharedKey c2)
-  
 
-main :: IO Integer
-main = do
-  -----------------------------------------------------------------------------
-  -- Assignment 1
-  -----------------------------------------------------------------------------
-  putStrLn "########## Assignment 1 ##########"
-
-  -- Alice wants to send Bob a confidential message. Bob provides Alice with 
-  -- his secret key, consisting of the generator g, prime p and his public
-  -- encryption key
-  let (p, g, pkb) = (6661, 666, 2227)
-
-  -- Solving assignment 1 within function `assignment1` to only reveal the 
-  -- message that will be sent to Bob
-  c <- assignment1 p g pkb
-
-
-  -----------------------------------------------------------------------------
-  -- Assignment 2
-  -----------------------------------------------------------------------------
-  putStrLn ""
-  putStrLn "########## Assignment 2 ##########"
-
-  assignment2 p g pkb c
-  
-  -----------------------------------------------------------------------------
-  -- Assignment 3
-  -----------------------------------------------------------------------------
-  putStrLn ""
-  putStrLn "########## Assignment 3 ##########"
-  
-
-  (c1, c2) <- assignment3 c
-
-  printf "Bob now receives the tampered message C = (%s, %s)\n" (show c1) (show c2)
-  -- Bob decrypts the message with the shared key (Bob can generate this, but we'll
-  -- use the previously generated one from Alice for convenience)
-  tamperedMessageDecrypted <- bobDecryptsMsg p g pkb (c1, c2)
-
-  printf "Bob decrypts the tampered message into: %s\n" (show tamperedMessageDecrypted)
-
-  return 0
