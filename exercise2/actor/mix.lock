@@ -1,0 +1,3 @@
+%{
+  "type_check": {:hex, :type_check, "0.12.1", "793e68dfafef2ecb1d94ed6c1ab25687b251f56ffa13bd2015ab0cda958930d4", [:mix], [{:credo, "~> 1.5", [hex: :credo, repo: "hexpm", optional: true]}, {:stream_data, "~> 0.5.0", [hex: :stream_data, repo: "hexpm", optional: true]}], "hexpm", "196a1b625833c6f69e13e62691c07b21358d2e5a4744e84f778f2db786205b48"},
+}
