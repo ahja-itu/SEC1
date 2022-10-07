@@ -11,7 +11,7 @@ defmodule Networking do
 
     {:ok, socket} =
       :gen_tcp.listen(port, [:binary, packet: :line, active: false, reuseaddr: true])
-    Logger.info("#{Networking.Settings.get_own_id} connections on port #{port}")
+    Logger.info("#{Networking.Settings.get_own_id} accepting connections on port #{port}")
     loop_acceptor(socket)
   end
 
