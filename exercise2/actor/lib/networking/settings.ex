@@ -2,7 +2,7 @@ defmodule Networking.Settings do
   use Agent
 
   def start_link(_) do
-    port = System.get_env("PORT") || 4000
+    port = System.get_env("PORT") || "4000"
     own_id = System.get_env("OWN_ID") || "UNKNOWN"
 
     Agent.start_link(fn -> %{port: port, own_id: own_id} end, name: __MODULE__)
