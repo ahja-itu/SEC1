@@ -23,9 +23,8 @@ defmodule Commitments do
   """
   @spec verify(String.t(), String.t()) :: :ok | :error
   def verify(hash, rmsg) do
-    case hash == :crypto.hash(@hash_algo, rmsg) do
-      true -> :ok
-      false -> :error
-    end
+    if hash == :crypto.hash(@hash_algo, rmsg),
+      do: :ok,
+      else: :error
   end
 end
