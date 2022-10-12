@@ -1,7 +1,9 @@
-defmodule Commitments do
+defmodule Handin2.Commitments do
+  @moduledoc """
+  The Commitments module is responsible for handling the commitments of the dice game.
+  """
+  require Logger
 
-
-  @hash_algo :sha256
   @bitstring_length 256
 
   @doc """
@@ -13,7 +15,7 @@ defmodule Commitments do
   def create(msg) do
     :crypto.strong_rand_bytes(@bitstring_length)
     |> Kernel.<>(msg)
-    |> then(&{&1, :crypto.hash(@hash_algo, &1)})
+    |> then(&{&1, Handin2.Utils.hash(&1)})
   end
 
   @doc """
@@ -23,7 +25,7 @@ defmodule Commitments do
   """
   @spec verify(String.t(), String.t()) :: :ok | :error
   def verify(hash, rmsg) do
-    if hash == :crypto.hash(@hash_algo, rmsg),
+    if hash == Handin2.Utils.hash(rmsg),
       do: :ok,
       else: :error
   end
