@@ -1,15 +1,25 @@
 defmodule Handin2.Endpoint do
-  use Plug.Router
   require Logger
+  use Plug.Router
 
-  if Mix.env == :dev do
-    use Plug.Debugger, otp_app: :my_app
-  end
+  alias Handin2.Server
 
   plug :match
   plug Plug.Parsers, parsers: [:json], pass: ["application/json", "text/json"], json_decoder: Poison
   plug :respond_json
   plug :dispatch
+
+  post "/commit" do
+    Server.commit(conn.body_params) |> handle_server_response(conn)
+  end
+
+  post "/reveal/:id" do
+    Server.reveal(conn.body_params, id) |> handle_server_response(conn)
+  end
+
+  match _ do
+    send_resp(conn, 404, "Not found")
+  end
 
   def generate_response({:ok, msg}), do: {200, msg}
   def generate_response({:error, msg}), do: {400, msg}
@@ -19,13 +29,12 @@ defmodule Handin2.Endpoint do
 
   def respond_json(conn, _), do: put_resp_content_type(conn, "application/json")
 
-  # This only works if you make POST requests with the body in JSON format
-  match _ do
-    conn
-    |> Handin2.Server.send_msg()
+  def send_response({code, response}, conn), do: send_resp(conn, code, response)
+
+  def handle_server_response(server_response, conn) do
+    server_response
     |> generate_response()
     |> encode_response()
-    |> then(fn {code, response} -> send_resp(conn, code, response) end)
+    |> send_response(conn)
   end
-
 end

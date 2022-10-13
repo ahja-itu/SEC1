@@ -1,39 +1,43 @@
 defmodule Handin2.Game do
-  @moduledoc """
-  This module allows the server to keep track of multiple game states, such that multiple clients can
-  play with a single server
-  """
+  use TypeCheck
 
-  @type game_state :: :ready | :revealed | :comitted
+  alias Handin2.{Utils, Commitments}
 
-  def new do
-    Map.new()
+  defstruct client_commit: :unset,
+            server_roll: :unset,
+            server_bitstring: :unset
+
+  @spec! new(String.t()) :: map()
+  def new(client_commitment) do
+    %Handin2.Game{
+      client_commit: client_commitment,
+      server_roll: :rand.uniform(6),
+      server_bitstring: Utils.gen_bitstring(),
+    }
   end
 
-  def new_game(game_state) do
-    new_game_id = :crypto.strong_rand_bytes(256) |> Base.encode16()
+  @spec! gen_commitment(%Handin2.Game{}) :: binary()
+  def gen_commitment(game) do
+    Commitments.create(game.server_bitstring, game.server_roll |> Integer.to_string()) |> elem(1)
+  end
 
-    case Map.get(game_state, new_game_id) do
-      nil ->
-        game_state
-        |> Map.put(new_game_id, :ready)
-        |> then(&{new_game_id, &1})
-      _ -> new_game(game_state)
+  @spec! gen_commitment(binary(), binary()) :: binary()
+  def gen_commitment(bitstring, msg) do
+    Commitments.create(bitstring, msg) |> elem(1)
+  end
+
+  def check_reveal(game, bitstring, roll) do
+    case Commitments.verify(game.client_commit, bitstring, roll |> Integer.to_string()) do
+      :ok -> {:ok, determine_winner(game, roll)}
+      :error -> {:error, "Commitment does not match"}
     end
   end
 
-  def get_game_state(game_state, game_id) do
-    Map.get(game_state, game_id)
-  end
-
-  def promote_state(game_state, game_id) do
-    case Map.get(game_state, game_id) do
-      :ready    -> game_state |> {:ok, Map.put(game_id, :comitted)}
-      :comitted -> game_state |> {:ok, Map.put(game_id, :revealed)}
-      :revealed -> game_state |> {:ok, Map.delete(game_id)}
-      _         ->               {:error, game_state}
+  defp determine_winner(game, client_roll) do
+    cond do
+      game.server_roll == client_roll -> :draw
+      game.server_roll > client_roll -> :server
+      game.server_roll < client_roll -> :client
     end
   end
-
-
 end
