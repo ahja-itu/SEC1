@@ -7,7 +7,7 @@ services:
       dockerfile: ./dockerfiles/actor.Dockerfile
     environment:
       PLAYER: alice
-      PLAYERS: bob:4040,carol:4040
+      PLAYERS: bob:4040
 
   bob:
     build:
@@ -15,13 +15,4 @@ services:
       dockerfile: ./dockerfiles/actor.Dockerfile
     environment:
       PLAYER: bob
-      PLAYERS: alice:4040,carol:4040
-
-  carol:
-    build:
-      context: .
-      dockerfile: ./dockerfiles/actor.Dockerfile
-    environment:
-      PLAYER: carol
-      PLAYERS: alice:4040,bob:4040
-   
+      PLAYERS: alice:4040
