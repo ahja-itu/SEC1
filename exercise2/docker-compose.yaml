@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  alice:
+    build:
+      context: .
+      dockerfile: ./dockerfiles/actor.Dockerfile
+    environment:
+      PLAYER: alice
+      PLAYERS: bob:4040,carol:4040
+
+  bob:
+    build:
+      context: .
+      dockerfile: ./dockerfiles/actor.Dockerfile
+    environment:
+      PLAYER: bob
+      PLAYERS: alice:4040,carol:4040
+
+  carol:
+    build:
+      context: .
+      dockerfile: ./dockerfiles/actor.Dockerfile
+    environment:
+      PLAYER: carol
+      PLAYERS: alice:4040,bob:4040
+   
