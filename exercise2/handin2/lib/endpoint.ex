@@ -18,7 +18,7 @@ defmodule Handin2.Endpoint do
   end
 
   match _ do
-    send_resp(conn, 404, "Not found")
+    send_resp(conn, 404, Poison.encode!(%{message: "Not found", path: "#{inspect(conn.request_path)}"})
   end
 
   def generate_response({:ok, msg}), do: {200, msg}
