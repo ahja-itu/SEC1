@@ -14,9 +14,7 @@ defmodule Handin2.Commitments do
   """
   @spec! create(binary(), binary()) :: {binary(), binary()}
   def create(bitstring, msg) do
-    (bitstring <>
-       msg)
-    |> then(&{&1, Utils.hash(&1)})
+    {bitstring, Utils.hash(bitstring <> msg)}
   end
 
   @spec! create(binary()) :: {binary(), binary()}

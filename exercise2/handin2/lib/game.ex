@@ -24,7 +24,7 @@ defmodule Handin2.Game do
   end
 
   @spec! gen_commitment(binary(), binary()) :: binary()
-  def gen_commitment(bitstring, msg) do
+  def gen_commitment(msg, bitstring) do
     Commitments.create(bitstring, msg) |> elem(1)
   end
 

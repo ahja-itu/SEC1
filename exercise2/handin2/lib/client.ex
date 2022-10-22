@@ -28,7 +28,8 @@ defmodule Handin2.Client do
 
   def handle_info(:play, state) do
     new_state = play(state)
-    schedule_next_game()
+    if Utils.keep_playing?, do: schedule_next_game()
+
     {:noreply, new_state}
   end
 
@@ -50,18 +51,17 @@ defmodule Handin2.Client do
 
   defp send_commitment({other_player, client_state}) do
     roll = Game.dice_roll()
+    Logger.info("Rolling dice: #{roll}")
 
     {bitstring, commitment} = Commitments.create(roll |> Integer.to_string())
-
-    Logger.info(
-      "Rolls #{inspect(roll)}, generates bitstring #{bitstring |> Utils.trunc()} and commitment #{commitment |> Utils.trunc()}. Sends it to opponent"
-    )
+    Logger.info("Generating bitstring: #{bitstring |> Utils.trunc()}")
+    Logger.info("Generating commitment: #{commitment |> Utils.trunc()}")
+    Logger.info("Sending commitment to #{other_player}")
 
     msg = %{"commitment" => commitment}
     {_, body} = post("/commit", msg, host: other_player)
     game_id = Map.get(body, "game_id")
     server_commitment = Map.get(body, "commitment")
-
     Logger.info("Received commitment from opponent #{server_commitment |> Utils.trunc()}..")
 
     msg = %{"bitstring" => bitstring, "roll" => roll}
@@ -75,14 +75,11 @@ defmodule Handin2.Client do
       client_state: client_state
     }
   end
-
   defp send_reveal(game_state) do
     %{
       other_player: other_player,
-      server_commitment: server_commitment,
       msg: msg,
       game_id: game_id,
-      client_state: client_state
     } = game_state
 
     Logger.info("Reveals commitment to opponent")
@@ -90,10 +87,9 @@ defmodule Handin2.Client do
 
     server_bitstring = Map.get(body, "bitstring")
     server_roll = Map.get(body, "roll")
+    Logger.info("Received opponent bitstring: #{server_bitstring |> Utils.trunc()}")
+    Logger.info("Received opponent roll: #{server_roll}")
 
-    Logger.info(
-      "Received opponent bitstring #{server_bitstring |> Utils.trunc()} and roll #{inspect(server_roll)} from server"
-    )
 
     Map.put(game_state, :server_bitstring, server_bitstring)
     |> Map.put(:server_roll, server_roll)
@@ -106,7 +102,6 @@ defmodule Handin2.Client do
       server_bitstring: server_bitstring,
       server_roll: server_roll,
       roll: roll,
-      other_player: other_player,
       client_state: client_state
     } = game_state
 

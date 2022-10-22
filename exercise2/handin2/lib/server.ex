@@ -47,14 +47,11 @@ defmodule Handin2.Server do
     game_id = Handin2.Utils.gen_bitstring(validate)
     :ets.insert(store, {game_id, new_game})
 
-    commitment = Game.gen_commitment(new_game)
+    commitment = Game.gen_commitment(new_game.server_roll |> Integer.to_string(), new_game.server_bitstring)
 
-    Logger.info(
-      "New game started with id: #{game_id |> Utils.trunc()}. Rolled #{new_game.server_roll}"
-    )
-
+    Logger.info("Rolling dice: #{new_game.server_roll}")
+    Logger.info("Generating bitstring: #{new_game.server_bitstring |> Utils.trunc()}")
     Logger.info("Replying with generated commitment: #{commitment |> Utils.trunc()}")
-    {:reply, {:ok, commitment}, store}
 
     {:reply, {:ok, %{game_id: game_id, commitment: commitment}}, store}
   end
@@ -65,13 +62,13 @@ defmodule Handin2.Server do
         case Game.check_reveal(game, bitstring, roll) do
           {:ok, result} ->
             Logger.info(
-              "Revealing commitment was successful! Game #{game_id |> Utils.trunc()} won by #{result}"
+              "Opponent revealing commitment was successful! Game won by #{result}"
             )
-
             :ets.delete(store, game_id)
 
           {:error, reason} ->
-            Logger.info("Game #{game_id |> Utils.trunc()} failed with reason: #{reason}")
+            Logger.error("Game failed with reason: #{reason}.")
+
         end
 
         reply = %{

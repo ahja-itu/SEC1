@@ -68,6 +68,11 @@ defmodule Handin2.Utils do
     "\"" <> truncated <> "\""
   end
 
+  @spec! keep_playing?() :: boolean()
+  def keep_playing?() do
+    Application.get_env(:handin2, :keep_playing)
+  end
+
   defp get_trunc_length() do
     Application.get_env(:handin2, :trunc_length)
   end
