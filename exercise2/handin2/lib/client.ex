@@ -19,7 +19,6 @@ defmodule Handin2.Client do
   @spec! init(:ok) :: {:ok, any()}
   def init(:ok) do
     schedule_games_if_playing()
-
     {:ok, gen_new_state()}
   end
 
@@ -28,12 +27,7 @@ defmodule Handin2.Client do
   #
 
   def handle_info(:play, state) do
-    new_state =
-      case :rand.uniform(5) do
-        3 -> play(state)
-        _ -> state
-      end
-
+    new_state = play(state)
     schedule_next_game()
     {:noreply, new_state}
   end
@@ -60,9 +54,7 @@ defmodule Handin2.Client do
     {bitstring, commitment} = Commitments.create(roll |> Integer.to_string())
 
     Logger.info(
-      "Rolls #{inspect(roll)}, generates bitstring #{inspect(bitstring |> String.slice(0, 15))}.. and commitment #{inspect(commitment) |> String.slice(0, 15)}. Sends it to opponent",
-      player: player_name(),
-      opponent: other_player
+      "Rolls #{inspect(roll)}, generates bitstring #{bitstring |> Utils.trunc()} and commitment #{commitment |> Utils.trunc()}. Sends it to opponent"
     )
 
     msg = %{"commitment" => commitment}
@@ -70,11 +62,7 @@ defmodule Handin2.Client do
     game_id = Map.get(body, "game_id")
     server_commitment = Map.get(body, "commitment")
 
-    Logger.info(
-      "Received commitment from opponent #{inspect(server_commitment) |> String.slice(0, 15)}..",
-      player: player_name(),
-      opponent: other_player
-    )
+    Logger.info("Received commitment from opponent #{server_commitment |> Utils.trunc()}..")
 
     msg = %{"bitstring" => bitstring, "roll" => roll}
 
@@ -97,16 +85,14 @@ defmodule Handin2.Client do
       client_state: client_state
     } = game_state
 
-    Logger.info("Reveals commitment to opponent", player: player_name(), opponent: other_player)
+    Logger.info("Reveals commitment to opponent")
     {_, body} = post("/reveal/#{game_id}", msg, host: other_player)
 
     server_bitstring = Map.get(body, "bitstring")
     server_roll = Map.get(body, "roll")
 
     Logger.info(
-      "Received opponent bitstring #{inspect(server_bitstring) |> String.slice(0, 15)}.. and roll #{inspect(server_roll)} from server",
-      player: player_name(),
-      opponent: other_player
+      "Received opponent bitstring #{server_bitstring |> Utils.trunc()} and roll #{inspect(server_roll)} from server"
     )
 
     Map.put(game_state, :server_bitstring, server_bitstring)
@@ -130,16 +116,15 @@ defmodule Handin2.Client do
     # Verify the opening with the previously received commitment
     verification = Commitments.verify(server_commitment, server_bitstring, server_roll_str)
 
-    Logger.info("Verifies opponent commitment #{inspect(verification)}",
-      player: player_name(),
-      opponent: other_player
-    )
+    Logger.info("Verifies opponent commitment #{inspect(verification)}")
+
+    winner = determine_winner(roll, server_roll)
 
     Logger.info(
-      "Game result: own:#{inspect(roll)} vs opponent:#{inspect(server_roll)}. Verdict: #{inspect(determine_winner(roll, server_roll))}",
-      player: player_name(),
-      opponent: other_player
+      "Game result: own:#{inspect(roll)} vs opponent:#{inspect(server_roll)}. Verdict: #{inspect(winner)}"
     )
+
+    Logger.info("The game has concluded.")
 
     case verification do
       :ok -> update_state_verified(client_state, roll, server_roll)
@@ -207,14 +192,7 @@ defmodule Handin2.Client do
   defp schedule_games_if_playing() do
     case Utils.is_playing?() do
       true ->
-        timeout = 3
-
-        Logger.info(
-          "Player (client) process started. Scheduling to begin playing in #{inspect(timeout)} seconds.",
-          player: player_name()
-        )
-
-        schedule_next_game(timeout)
+        schedule_next_game()
 
       false ->
         :ok

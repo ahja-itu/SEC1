@@ -57,4 +57,18 @@ defmodule Handin2.Utils do
   def is_playing?() do
     Application.get_env(:handin2, :is_playing)
   end
+
+  @spec! trunc(String.t()) :: String.t()
+  def trunc(str) do
+    truncated =
+      if get_trunc_length() >= 1,
+        do: String.slice(str, 0..get_trunc_length()) <> "...",
+        else: str
+
+    "\"" <> truncated <> "\""
+  end
+
+  defp get_trunc_length() do
+    Application.get_env(:handin2, :trunc_length)
+  end
 end

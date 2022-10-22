@@ -7,7 +7,7 @@ defmodule Handin2.Server do
   use TypeCheck
   require Logger
 
-  alias Handin2.Game
+  alias Handin2.{Game, Utils}
 
   #
   # Public API
@@ -49,23 +49,43 @@ defmodule Handin2.Server do
 
     commitment = Game.gen_commitment(new_game)
 
+    Logger.info(
+      "New game started with id: #{game_id |> Utils.trunc()}. Rolled #{new_game.server_roll}"
+    )
+
+    Logger.info("Replying with generated commitment: #{commitment |> Utils.trunc()}")
+    {:reply, {:ok, commitment}, store}
+
     {:reply, {:ok, %{game_id: game_id, commitment: commitment}}, store}
   end
 
   def handle_call({:reveal, game_id, %{"bitstring" => bitstring, "roll" => roll}}, _from, store) do
     case :ets.lookup(store, game_id) do
       [{^game_id, game}] ->
-        reply =
-          Map.new()
-          |> Map.put(:winner, handle_game_lookup(game, bitstring, roll) |> elem(1))
-          |> Map.put(:game_id, game_id)
-          |> Map.put(:bitstring, game.server_bitstring)
-          |> Map.put(:roll, game.server_roll)
+        case Game.check_reveal(game, bitstring, roll) do
+          {:ok, result} ->
+            Logger.info(
+              "Revealing commitment was successful! Game #{game_id |> Utils.trunc()} won by #{result}"
+            )
+
+            :ets.delete(store, game_id)
+
+          {:error, reason} ->
+            Logger.info("Game #{game_id |> Utils.trunc()} failed with reason: #{reason}")
+        end
+
+        reply = %{
+          winner: handle_game_lookup(game, bitstring, roll) |> elem(1),
+          game_id: game_id,
+          bitstring: game.server_bitstring,
+          roll: game.server_roll
+        }
 
         {:reply, {:ok, reply}, store}
 
       [] ->
-        {:reply, {:error, %{message: "No game found by game_id #{inspect(game_id)}"}}, store}
+        {:reply, {:error, %{message: "No game found by game_id #{game_id |> Utils.trunc()}"}},
+         store}
     end
   end
 
