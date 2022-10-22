@@ -41,4 +41,19 @@ defmodule Handin2.Utils do
   defp encode(bitstring) do
     bitstring |> Base.encode64() |> String.replace("/", "_")
   end
+
+  @spec! get_player_name() :: String.t()
+  def get_player_name() do
+    Application.get_env(:handin2, :player_name)
+  end
+
+  @spec! get_opponent_name() :: String.t()
+  def get_opponent_name() do
+    Application.get_env(:handin2, :player_names) |> Enum.random()
+  end
+
+  @spec! is_playing?() :: boolean()
+  def is_playing?() do
+    Application.get_env(:handin2, :is_playing)
+  end
 end

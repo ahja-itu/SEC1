@@ -8,6 +8,7 @@ services:
     environment:
       PLAYER: alice
       PLAYERS: bob:4040
+      IS_PLAYING: true
 
   bob:
     build:

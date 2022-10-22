@@ -3,6 +3,8 @@ defmodule Handin2.Application do
 
   use Application
 
+  alias Handin2.Security
+
   @impl true
   def start(_type, _args) do
     children = [
@@ -18,8 +20,9 @@ defmodule Handin2.Application do
   def endpoint_opts do
     [
       port: 4040,
-      certfile: "priv/cert/selfsigned.pem",
-      keyfile: "priv/cert/selfsigned_key.pem",
+      cacertfile: Security.config(:cacert),
+      certfile: Security.config(:cert),
+      keyfile: Security.config(:privatekey),
       otp_app: :handin2,
     ]
   end
