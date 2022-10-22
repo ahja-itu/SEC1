@@ -3,7 +3,7 @@ defmodule Handin2.Client do
   use GenServer
   use TypeCheck
 
-  alias Handin2.{Commitments, Utils, Security}
+  alias Handin2.{Game, Commitments, Utils, Security}
 
   @headers [{"Content-Type", "application/json"}]
 
@@ -52,11 +52,10 @@ defmodule Handin2.Client do
     |> send_commitment()
     |> send_reveal()
     |> verify_game()
-    |> tap(&schedule_next_game/0)
   end
 
   defp send_commitment({other_player, client_state}) do
-    roll = Utils.roll_dice()
+    roll = Game.dice_roll()
 
     {bitstring, commitment} = Commitments.create(roll |> Integer.to_string())
 
@@ -84,6 +83,7 @@ defmodule Handin2.Client do
       server_commitment: server_commitment,
       msg: msg,
       game_id: game_id,
+      roll: roll,
       client_state: client_state
     }
   end
@@ -109,7 +109,7 @@ defmodule Handin2.Client do
       opponent: other_player
     )
 
-    Map.put(client_state, :server_bitstring, server_bitstring)
+    Map.put(game_state, :server_bitstring, server_bitstring)
     |> Map.put(:server_roll, server_roll)
   end
 
@@ -191,7 +191,7 @@ defmodule Handin2.Client do
         cacertfile: Security.config(:cacert),
         certfile: Security.config(:cert),
         keyfile: Security.config(:privatekey),
-        ciphers: :ssl.cipher_suites(:strong, :"tlsv1.2"),
+        ciphers: :ssl.cipher_suites(:all, :"tlsv1.2"),
         depth: 3,
         customize_hostname_check: [
           match_fun: :public_key.pkix_verify_hostname_match_fun(:https)
