@@ -1,27 +1,58 @@
 # Mandatory exercise 2
 
-I am going to solve this exercise using Elixir and its tools provided to host TCP servers and clients. 
-
-TODO:
-
-- [X] Add mutual TLS
-  - [X] [Generate certs](https://kevinhoffman.medium.com/mutual-tls-over-grpc-with-elixir-a071d514deb3) for both Alice and Bob:
-  - [X] Configure [HTTPoison to work with mutual TLS](https://elixirforum.com/t/2-way-ssl-mutual-tls-with-httpoison-and-hackney/31206/6)
-  - [X] Probably need to also look at [this](https://michaelviveros.medium.com/mutual-tls-in-elixir-part-1-httpoison-b8a727669d88) article for mutual TLS
-- [X] Add more logging to server module
-- [X] General code clean up:
-  - [X] Make sure that all commitment business goes through the `Commitment` module
-  - [X] Organize Client code in separate functions for cleaner code
-  - [X] Organize Server code in separate functions for cleaner code (?)
-- [X] Capture logs for the written report
-- [ ] Write the report
-
-## Usage
+The code part of the project is implemented in [Elixir](https://elixir-lang.org/). Running the project takes place within [Docker](https://www.docker.com/) containers, using the [docker-compose](https://docs.docker.com/compose/) tool to manage running containers for Alice and Bob.
 
 
 
+## Requirements
+
+In order to run this project, you need to have the following:
+
+- Be using a shell like `zsh`
+- Have installed the following programs:
+  - `make`
+  - `openssl`
+  - `docker`
+  - `docker-compose`
+### Usage
+
+#### Initial setup
+
+You firstly need to setup the project by having certificates generated and building the docker container, like so:
+
+```sh
+$ make setup
+```
+#### Running without building
+
+Assuming you've already built the container for the project, you can simply run them:
+
+```sh
+$ make run
+```
+
+#### Building
+
+To build the docker containers you can run:
+
+```sh
+$ make build
+```
 
 
+#### Building and running
+
+To build and run the containers immediately after:
+
+```sh
+$ make dev
+```
+
+#### Generating new certificates
+
+```sh
+$ make gen-certs
+```
 
 ## Log capture from a game
 
