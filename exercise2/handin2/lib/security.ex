@@ -14,6 +14,6 @@ defmodule Handin2.Security do
   end
 
   def config(:cacert) do
-    "priv/cert/ca/rootCA.key"
+    "priv/cert/ca/rootCA.crt"
   end
 end
