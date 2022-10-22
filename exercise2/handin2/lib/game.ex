@@ -28,7 +28,8 @@ defmodule Handin2.Game do
     Commitments.create(bitstring, msg) |> elem(1)
   end
 
-  @spec! check_reveal(%Handin2.Game{}, binary(), non_neg_integer()) :: {:ok, atom()} | {:error, binary()}
+  @spec! check_reveal(%Handin2.Game{}, binary(), non_neg_integer()) ::
+           {:ok, atom()} | {:error, binary()}
   def check_reveal(game, bitstring, roll) do
     case Commitments.verify(game.client_commit, bitstring, roll |> Integer.to_string()) do
       :ok -> {:ok, determine_winner(game, roll)}

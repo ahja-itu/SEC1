@@ -25,7 +25,7 @@ defmodule Handin2.Application do
       certfile: Security.config(:cert),
       keyfile: Security.config(:privatekey),
       otp_app: :handin2,
-      versions: [:"tlsv1.2"],
+      versions: [:"tlsv1.2"]
     ]
   end
 end
