@@ -25,19 +25,17 @@ defmodule Handin2.Server.Test do
 
   describe "reveal" do
     test "returns the winner" do
-        roll = 6
-        bitstring = Utils.gen_bitstring()
-        commitment = bitstring <> Integer.to_string(roll) |> Utils.hash()
+      roll = 6
+      bitstring = Utils.gen_bitstring()
+      commitment = (bitstring <> Integer.to_string(roll)) |> Utils.hash()
 
-        msg = %{"commitment" => commitment}
-        {:ok, %{game_id: game_id}} = Server.commit(msg)
+      msg = %{"commitment" => commitment}
+      {:ok, %{game_id: game_id}} = Server.commit(msg)
 
-        msg = %{"bitstring" => bitstring, "roll" => roll}
-        {:ok, resp} = Server.reveal(msg, game_id)
+      msg = %{"bitstring" => bitstring, "roll" => roll}
+      {:ok, resp} = Server.reveal(msg, game_id)
 
-        assert resp.winner == :client or resp.winner == :draw
+      assert resp.winner == :client or resp.winner == :draw
     end
   end
-
-
 end

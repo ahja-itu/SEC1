@@ -14,7 +14,7 @@ defmodule Handin2.Game do
     %Handin2.Game{
       client_commit: client_commitment,
       server_roll: :rand.uniform(6),
-      server_bitstring: Utils.gen_bitstring(),
+      server_bitstring: Utils.gen_bitstring()
     }
   end
 

@@ -10,7 +10,7 @@ defmodule Handin2.Application do
     children = [
       {Handin2.Server, name: Handin2.Server},
       {Handin2.Client, name: Handin2.Client},
-      {Plug.Cowboy, scheme: :https, plug: Handin2.Endpoint, options: endpoint_opts()},
+      {Plug.Cowboy, scheme: :https, plug: Handin2.Endpoint, options: endpoint_opts()}
     ]
 
     opts = [strategy: :one_for_one, name: Handin2.Supervisor]
@@ -23,7 +23,7 @@ defmodule Handin2.Application do
       cacertfile: Security.config(:cacert),
       certfile: Security.config(:cert),
       keyfile: Security.config(:privatekey),
-      otp_app: :handin2,
+      otp_app: :handin2
     ]
   end
 end

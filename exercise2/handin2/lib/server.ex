@@ -49,26 +49,28 @@ defmodule Handin2.Server do
 
     commitment = Game.gen_commitment(new_game)
 
-    {:reply, {:ok, %{game_id: game_id, commitment: commitment }}, store}
+    {:reply, {:ok, %{game_id: game_id, commitment: commitment}}, store}
   end
 
   def handle_call({:reveal, game_id, %{"bitstring" => bitstring, "roll" => roll}}, _from, store) do
     case :ets.lookup(store, game_id) do
       [{^game_id, game}] ->
-        reply = Map.new()
+        reply =
+          Map.new()
           |> Map.put(:winner, handle_game_lookup(game, bitstring, roll) |> elem(1))
           |> Map.put(:game_id, game_id)
           |> Map.put(:bitstring, game.server_bitstring)
           |> Map.put(:roll, game.server_roll)
 
         {:reply, {:ok, reply}, store}
+
       [] ->
-        {:reply, {:error, %{message: "No game found by game_id #{inspect game_id}"}}, store}
+        {:reply, {:error, %{message: "No game found by game_id #{inspect(game_id)}"}}, store}
     end
   end
 
   def handle_call(msg, _from, state) do
-    Logger.error("Unsupported message: #{inspect msg}")
+    Logger.error("Unsupported message: #{inspect(msg)}")
     {:reply, {:error, "Bad request"}, state}
   end
 

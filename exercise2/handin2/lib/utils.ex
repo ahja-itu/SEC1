@@ -32,6 +32,7 @@ defmodule Handin2.Utils do
   @spec! gen_bitstring((String.t() -> boolean())) :: String.t()
   def gen_bitstring(checker) do
     bitstring = gen_bitstring()
+
     case checker.(bitstring) do
       false -> gen_bitstring(checker)
       true -> bitstring

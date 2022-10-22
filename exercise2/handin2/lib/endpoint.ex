@@ -4,10 +4,16 @@ defmodule Handin2.Endpoint do
 
   alias Handin2.Server
 
-  plug :match
-  plug Plug.Parsers, parsers: [:json], pass: ["application/json", "text/json"], json_decoder: Poison
-  plug :respond_json
-  plug :dispatch
+  plug(:match)
+
+  plug(Plug.Parsers,
+    parsers: [:json],
+    pass: ["application/json", "text/json"],
+    json_decoder: Poison
+  )
+
+  plug(:respond_json)
+  plug(:dispatch)
 
   post "/commit" do
     Server.commit(conn.body_params) |> handle_server_response(conn)
@@ -18,7 +24,11 @@ defmodule Handin2.Endpoint do
   end
 
   match _ do
-    send_resp(conn, 404, Poison.encode!(%{message: "Not found", path: "#{inspect(conn.request_path)}"}))
+    send_resp(
+      conn,
+      404,
+      Poison.encode!(%{message: "Not found", path: "#{inspect(conn.request_path)}"})
+    )
   end
 
   def generate_response({:ok, msg}), do: {200, msg}

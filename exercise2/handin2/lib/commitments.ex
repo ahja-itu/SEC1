@@ -7,7 +7,6 @@ defmodule Handin2.Commitments do
 
   alias Handin2.Utils
 
-
   @doc """
   Creates a commitment to a message.
   Generates a random bitstring of length 256 and hashes it with the message.
@@ -15,8 +14,8 @@ defmodule Handin2.Commitments do
   """
   @spec! create(binary(), binary()) :: {binary(), binary()}
   def create(bitstring, msg) do
-    bitstring
-    <> msg
+    (bitstring <>
+       msg)
     |> then(&{&1, Utils.hash(&1)})
   end
 

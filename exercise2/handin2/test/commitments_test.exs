@@ -6,7 +6,7 @@ defmodule Handin2.Commitments.Tests do
   describe "create/1" do
     test "creates a commitment" do
       msg = "hello"
-     {rmsg, hash} = Commitments.create(msg)
+      {rmsg, hash} = Commitments.create(msg)
       assert String.contains?(rmsg, msg)
       assert String.length(hash) >= 0
     end

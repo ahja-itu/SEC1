@@ -20,7 +20,7 @@ defmodule Handin2.Endpoint.Test do
     test "server reveals their commit" do
       roll = 6
       bitstring = Handin2.Utils.gen_bitstring()
-      commitment = bitstring <> Integer.to_string(roll) |> Handin2.Utils.hash()
+      commitment = (bitstring <> Integer.to_string(roll)) |> Handin2.Utils.hash()
 
       # Create commitment
       msg = %{"commitment" => commitment}
@@ -38,7 +38,7 @@ defmodule Handin2.Endpoint.Test do
     test "server reveals correct commitment" do
       roll = 6
       bitstring = Handin2.Utils.gen_bitstring()
-      commitment = bitstring <> Integer.to_string(roll) |> Handin2.Utils.hash()
+      commitment = (bitstring <> Integer.to_string(roll)) |> Handin2.Utils.hash()
       msg = %{"commitment" => commitment}
       {resp, body} = post("/commit", msg)
       game_id = Map.get(body, "game_id")
@@ -50,17 +50,21 @@ defmodule Handin2.Endpoint.Test do
       server_bitstring = Map.get(body, "bitstring")
       server_roll = Map.get(body, "roll") |> Integer.to_string()
 
-      server_commitment_reconstructed = server_bitstring <> server_roll |> Handin2.Utils.hash()
+      server_commitment_reconstructed = (server_bitstring <> server_roll) |> Handin2.Utils.hash()
 
       assert server_commitment_reconstructed == server_commitment
     end
   end
 
-
   def post(endpoint, body) do
-    {:ok, resp} = HTTPoison.post(@host <> endpoint,
-      Poison.encode!(body),
-      @headers, [hackney: [:insecure]])
+    {:ok, resp} =
+      HTTPoison.post(
+        @host <> endpoint,
+        Poison.encode!(body),
+        @headers,
+        hackney: [:insecure]
+      )
+
     {resp, resp.body |> Poison.decode!()}
   end
 end
