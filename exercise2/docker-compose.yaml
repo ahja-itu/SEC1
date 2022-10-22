@@ -9,7 +9,8 @@ services:
       PLAYER: alice
       PLAYERS: bob:4040
       IS_PLAYING: "true"
-      TRUNC_LENGTH: 16
+      KEEP_PLAYING: "false"
+      TRUNC_LENGTH: 0
 
   bob:
     build:
@@ -18,4 +19,6 @@ services:
     environment:
       PLAYER: bob
       PLAYERS: alice:4040
-      TRUNC_LENGTH: 16
+      IS_PLAYING: "false"
+      KEEP_PLAYING: "false"
+      TRUNC_LENGTH: 0
