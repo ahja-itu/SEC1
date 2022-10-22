@@ -20,10 +20,12 @@ defmodule Handin2.Application do
   def endpoint_opts do
     [
       port: 4040,
+      cipher_suite: :compatible,
       cacertfile: Security.config(:cacert),
       certfile: Security.config(:cert),
       keyfile: Security.config(:privatekey),
-      otp_app: :handin2
+      otp_app: :handin2,
+      versions: [:"tlsv1.2"],
     ]
   end
 end
