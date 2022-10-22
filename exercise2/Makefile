@@ -16,4 +16,4 @@ run:
 	docker-compose up
 
 
-setup: gen-certs dev
+setup: gen-certs build
