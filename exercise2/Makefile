@@ -16,7 +16,7 @@ run:
 	docker-compose up
 
 run-remote:
-	docker-compose -f docker-compose.remote.yml up
+	docker-compose -f docker-compose.remote.yaml up
 
 setup: gen-certs build
 
