@@ -2,28 +2,36 @@
 
 The code part of the project is implemented in [Elixir](https://elixir-lang.org/). Running the project takes place within [Docker](https://www.docker.com/) containers, using the [docker-compose](https://docs.docker.com/compose/) tool to manage running containers for Alice and Bob.
 
-
-
 ## Requirements
 
 In order to run this project, you need to have the following:
 
-- Be using a shell like `zsh`
+- Ideally run on a UNIX based operating system (MacOS, Linux or WSL).
+- Have the `bash` shell available.
 - Have installed the following programs:
   - `make`
   - `openssl`
   - `docker`
   - `docker-compose`
-### Usage
 
-#### Initial setup
+
+### Running the containers from remote
+
+I have built the a version of the image before the handin deadline and pushed it to my own [Docker Hub repository](https://hub.docker.com/r/andreaswachs/itu.sec1.ma2). With this, you can run with the `remote` version of the docker-compose file. This means that you only need to have docker and docker-compose installed on your machine, regardless of OS.
+Do note that the images are built on the x86 architecture, from an Intel based MacBook. You might have problems with the pre-built image if you run on an arm based system.
+
+```sh
+$ make run-remote
+```
+
+### Initial setup
 
 You firstly need to setup the project by having certificates generated and building the docker container, like so:
 
 ```sh
 $ make setup
 ```
-#### Running without building
+### Running without building
 
 Assuming you've already built the container for the project, you can simply run them:
 
@@ -31,7 +39,7 @@ Assuming you've already built the container for the project, you can simply run 
 $ make run
 ```
 
-#### Building
+### Building
 
 To build the docker containers you can run:
 
@@ -39,8 +47,7 @@ To build the docker containers you can run:
 $ make build
 ```
 
-
-#### Building and running
+### Building and running
 
 To build and run the containers immediately after:
 
@@ -48,7 +55,7 @@ To build and run the containers immediately after:
 $ make dev
 ```
 
-#### Generating new certificates
+### Generating new certificates
 
 ```sh
 $ make gen-certs
@@ -57,19 +64,18 @@ $ make gen-certs
 ## Log capture from a game
 
 ```log
-exercise2-alice-1  | 12:37:34.715 [info] Rolling dice: 6
-exercise2-alice-1  | 12:37:34.723 [info] Generating bitstring: "ZdVa30943c87vIatZD0_yMO+4nFTVhH4EtgMXIe5arr5aTMDVHlbafn9YpphCs63k0rmGkJ4AWNf6b0CAANwdPeI9eT0iWUsWzxCy+WgF438iK6+nbFIrX8ptvjTBN5CbO5kCGunpTLpL2WNdBAbAGTAd3QydkYA7I1_2wzTx9MsqxGpmDt1il5rs9YysabJdDDPrgsxgCMpNJh81RvHI2yUwosTVXxH0qlykUlxv+PJvAw4WRjIixvHN1qbJsZQvSYsaDpyipyK09HA6kr9yC9EVbkxgqLzo0Q_7gXpWKntAHwAW2XSP9cGxazrGNAOf5WjOqRe9Q1gTQhF3zs0+w=="
-exercise2-alice-1  | 12:37:34.723 [info] Generating commitment: "35VS4inX2SIhkH3AugzQHWJBS90HFTpaUXByppEFcjdRCnJRTF7StJksQfwencPp0EK6JPt8sox9yqaMFNinbg=="
-exercise2-alice-1  | 12:37:34.723 [info] Sending commitment to bob:4040
-exercise2-bob-1    | 12:37:34.943 [info] Rolling dice: 6
-exercise2-bob-1    | 12:37:34.945 [info] Generating bitstring: "t4kFlD9GnjKgwvkN4P3Kjio8jAR61RWVwUnPlVPO4ZQTI5lDBaXHMbAGeYVnxYomS1fN_eTcO4W_bAIYEeEjr_lyT8aMR056VN_5XXbsEBBtNdWmwfX2sVzYKoXWeFwSG3djWAkmFSGR_PQw9v+QdZD93rY3FH27jiGFyRGlg8qevOXona0hnKDzhF3gjxFdZRBefGYUMZdecSa+OcEKqqKVM+xjLW2e6auR6dbLCo2+mYvuuXKtJ3YFazafsMGufaT+jqtPggRqvqXAHZ_jg6NKsn6RpFhcRw_cyW8UrrjPnl7jKF5AAvysbY2fTHI3+PUOapl1t7iW0ipRM4Ygew=="
-exercise2-bob-1    | 12:37:34.945 [info] Replying with generated commitment: "reOOzZ8zXzLo0SZNGWe6YUi78FZlFfdk60dunEgNJxuFWNPRm3SSvELivHKTAxOzzJ29XGdarD5jNmQTPhYLhg=="
-exercise2-alice-1  | 12:37:34.961 [info] Received commitment from opponent "reOOzZ8zXzLo0SZNGWe6YUi78FZlFfdk60dunEgNJxuFWNPRm3SSvELivHKTAxOzzJ29XGdarD5jNmQTPhYLhg=="..
-exercise2-alice-1  | 12:37:34.961 [info] Reveals commitment to opponent
-exercise2-bob-1    | 12:37:34.964 [info] Opponent revealing commitment was successful! Game won by draw
-exercise2-alice-1  | 12:37:34.967 [info] Received opponent bitstring: "t4kFlD9GnjKgwvkN4P3Kjio8jAR61RWVwUnPlVPO4ZQTI5lDBaXHMbAGeYVnxYomS1fN_eTcO4W_bAIYEeEjr_lyT8aMR056VN_5XXbsEBBtNdWmwfX2sVzYKoXWeFwSG3djWAkmFSGR_PQw9v+QdZD93rY3FH27jiGFyRGlg8qevOXona0hnKDzhF3gjxFdZRBefGYUMZdecSa+OcEKqqKVM+xjLW2e6auR6dbLCo2+mYvuuXKtJ3YFazafsMGufaT+jqtPggRqvqXAHZ_jg6NKsn6RpFhcRw_cyW8UrrjPnl7jKF5AAvysbY2fTHI3+PUOapl1t7iW0ipRM4Ygew=="
-exercise2-alice-1  | 12:37:34.967 [info] Received opponent roll: 6
-exercise2-alice-1  | 12:37:34.974 [info] Verifies opponent commitment :ok
-exercise2-alice-1  | 12:37:34.976 [info] Game result: own:6 vs opponent:6. Verdict: :draw
-exercise2-alice-1  | 12:37:34.976 [info] The game has concluded.
-```
+exercise2-alice-1  | 05:19:59.783 [info] Rolling dice: 1
+exercise2-alice-1  | 05:19:59.793 [info] Generating bitstring: "enmoNSiLUYj5VSe8jqoYOSpmQ0x7Jj6Y1jHPBuwjJ4rXeOB5_UdwNUZjtm5WNMqFNROZEMC9+l7NSfj4wkaxj3OzTJ_lR_sB+N+J0daNP2Gn8D5w0IUYHPU2Cr6f3VkDldDqtoZWslttxAT3BL8G_Y_LiV5XPzWZbwyP6AniHrLYs0K5OisZZbl62FUQ9rlVRMHFsNbAj4oWg4LWwI7_Q1q5X99w90Md4p6pOqSc2LnbSnDLcz1zQuB_Y+XYD+gRk4zm29YuNNRVVY2CQ7AL45tK0yTm_mtZKPGj0EBQL3IIhdIAaXyEZNfW_gYx3_KQiUO4V8ecjEPWRA00ndu54A=="
+exercise2-alice-1  | 05:19:59.793 [info] Generating commitment: "bvQb7o5Vu0AHf1YLtor3cSNDAhiwih3BebA0sM2lrsZ9UjB+J+xalYe7A6eMFWCmA39pb5HkYQbmjoY5hwrhXg=="
+exercise2-alice-1  | 05:19:59.793 [info] Sending commitment to bob:4040
+exercise2-bob-1    | 05:19:59.987 [info] Rolling dice: 3
+exercise2-bob-1    | 05:19:59.988 [info] Generating bitstring: "A7nOoiNGXQXxx5XoF8L_d4QTKeu6f9kZUhwAQc0Z6p55W8E2uoavhEOIwi6wD5bDl9jMh2OUgWJvXWFimu_NWxpzCzRmsHULwgNA+EOzCNHXWxoI5nqxOIfyMH+qNtDU1LAcxU8fflf4kAIqCHei4Ze2Vb9oejkkL5hIPYgf6XP_1XGUBEX957tKadq5TJ1wild+vWGF33dqjE2y+FUJjl6mUtu0zOhSil42h_e+SsOioscm26nlQsu_L9KqYAL2BnnJBpN2zYXimA4cHtGrJo2PvX1TgrQRyJyO6wRQO2coo5uPU21rgQMQ+nj+wudeXD0cQbyXX+ilP3jbmoLdqQ=="
+exercise2-bob-1    | 05:19:59.988 [info] Replying with generated commitment: "B+FXndvrSYVYEKEeYRsBwBmeXEccD5QNVhruo65feV3Sg2pWFq_+aY2dlxa3gdjXO_pA0cgHkEGHUy0meylDKQ=="
+exercise2-alice-1  | 05:20:00.004 [info] Received commitment from opponent "B+FXndvrSYVYEKEeYRsBwBmeXEccD5QNVhruo65feV3Sg2pWFq_+aY2dlxa3gdjXO_pA0cgHkEGHUy0meylDKQ=="..
+exercise2-alice-1  | 05:20:00.004 [info] Reveals commitment to opponent
+exercise2-bob-1    | 05:20:00.007 [info] Opponent revealing commitment was successful! Results: server roll: 3, client roll: 1. Game won by server
+exercise2-alice-1  | 05:20:00.010 [info] Received opponent bitstring: "A7nOoiNGXQXxx5XoF8L_d4QTKeu6f9kZUhwAQc0Z6p55W8E2uoavhEOIwi6wD5bDl9jMh2OUgWJvXWFimu_NWxpzCzRmsHULwgNA+EOzCNHXWxoI5nqxOIfyMH+qNtDU1LAcxU8fflf4kAIqCHei4Ze2Vb9oejkkL5hIPYgf6XP_1XGUBEX957tKadq5TJ1wild+vWGF33dqjE2y+FUJjl6mUtu0zOhSil42h_e+SsOioscm26nlQsu_L9KqYAL2BnnJBpN2zYXimA4cHtGrJo2PvX1TgrQRyJyO6wRQO2coo5uPU21rgQMQ+nj+wudeXD0cQbyXX+ilP3jbmoLdqQ=="
+exercise2-alice-1  | 05:20:00.010 [info] Received opponent roll: 3
+exercise2-alice-1  | 05:20:00.015 [info] Verifies opponent commitment :ok
+exercise2-alice-1  | 05:20:00.016 [info] Game result: own:1 vs opponent:3. Verdict: :loss
+exercise2-alice-1  | 05:20:00.016 [info] The game has concluded.```

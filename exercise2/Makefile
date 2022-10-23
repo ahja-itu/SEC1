@@ -1,4 +1,4 @@
-.PHONY: gen-certs clean dev run build setup
+.PHONY: gen-certs clean dev run build setup run-remote build-and-push
 
 gen-certs:
 	./scripts/gen_certs.sh
@@ -15,5 +15,12 @@ dev:
 run:
 	docker-compose up
 
+run-remote:
+	docker-compose -f docker-compose.remote.yml up
 
 setup: gen-certs build
+
+build-and-push:
+	docker build -t itu.sec1.ma2 -f dockerfiles/actor.Dockerfile .
+	docker tag itu.sec1.ma2 andreaswachs/itu.sec1.ma2:latest
+	docker push andreaswachs/itu.sec1.ma2:latest
