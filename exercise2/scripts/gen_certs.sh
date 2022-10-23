@@ -42,8 +42,3 @@ do
                  -out $dir/$person/$person.crt \
                  -days 356
 done
-
-
-debugPrint() {
-    echo "[GENCERTS] $*"
-}
