@@ -62,7 +62,7 @@ defmodule Handin2.Server do
         case Game.check_reveal(game, bitstring, roll) do
           {:ok, result} ->
             Logger.info(
-              "Opponent revealing commitment was successful! Game won by #{result}"
+              "Opponent revealing commitment was successful! Results: server roll: #{game.server_roll}, client roll: #{roll}. Game won by #{result}"
             )
             :ets.delete(store, game_id)
 
