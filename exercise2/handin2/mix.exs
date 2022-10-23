@@ -24,7 +24,6 @@ defmodule Handin2.MixProject do
     [
       {:plug_cowboy, "~> 2.0"},
       {:poison, "~> 5.0"},
-      {:x509, "~> 0.8"},
       {:httpoison, "~> 1.8"},
       {:type_check, "~> 0.12.1"},
       {:hackney, github: "benoitc/hackney", override: true}
