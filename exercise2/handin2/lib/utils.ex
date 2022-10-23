@@ -14,16 +14,6 @@ defmodule Handin2.Utils do
     :crypto.hash(@hash_algo, msg) |> encode()
   end
 
-  @spec! apply_arith(binary(), fun()) :: integer()
-  def apply_arith(str, fun) do
-    :binary.decode_unsigned(str) |> fun.()
-  end
-
-  @spec! apply_arith_to_str(binary(), fun()) :: binary()
-  def apply_arith_to_str(str, fun) do
-    apply_arith(str, fun) |> :binary.encode_unsigned()
-  end
-
   @spec! gen_bitstring() :: String.t()
   def gen_bitstring() do
     :crypto.strong_rand_bytes(@bitstring_length) |> encode()
@@ -37,10 +27,6 @@ defmodule Handin2.Utils do
       false -> gen_bitstring(checker)
       true -> bitstring
     end
-  end
-
-  defp encode(bitstring) do
-    bitstring |> Base.encode64() |> String.replace("/", "_")
   end
 
   @spec! get_player_name() :: String.t()
@@ -71,6 +57,10 @@ defmodule Handin2.Utils do
   @spec! keep_playing?() :: boolean()
   def keep_playing?() do
     Application.get_env(:handin2, :keep_playing)
+  end
+
+  defp encode(bitstring) do
+    bitstring |> Base.encode64() |> String.replace("/", "_")
   end
 
   defp get_trunc_length() do
