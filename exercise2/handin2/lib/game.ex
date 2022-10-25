@@ -2,7 +2,7 @@ defmodule Handin2.Game do
   require Logger
   use TypeCheck
 
-  alias Handin2.{Utils, Commitments, Roll, Security}
+  alias Handin2.{Utils, Roll, Security}
 
   @faces 6
   @headers [{"Content-Type", "application/json"}]
@@ -68,7 +68,7 @@ defmodule Handin2.Game do
 
     Logger.info("The servers commitments were valid!")
 
-    updated_game = %{ game | client_roll: new_client_roll, server_roll: new_server_roll }
+    %{ game | client_roll: new_client_roll, server_roll: new_server_roll }
   end
 
   def respond_commit(game, game_id, msg) do
