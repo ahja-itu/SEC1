@@ -1,7 +1,7 @@
 defmodule Handin2.Utils do
   use TypeCheck
 
-  @hash_algo :sha3_512
+  @hash_algo :sha3_256
   @bitstring_length 256
 
   @spec! get_hash_algo :: atom
@@ -59,7 +59,7 @@ defmodule Handin2.Utils do
   end
 
   defp encode(bitstring) do
-    bitstring |> Base.encode64() |> String.replace("/", "_")
+    bitstring |> String.replace("/", "_")
   end
 
   defp get_trunc_length() do
