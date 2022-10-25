@@ -44,7 +44,6 @@ defmodule Handin2.Utils do
     Application.get_env(:handin2, :is_playing)
   end
 
-  @spec! trunc(String.t()) :: String.t()
   def trunc(str) do
     truncated =
       if get_trunc_length() >= 1,
@@ -65,5 +64,10 @@ defmodule Handin2.Utils do
 
   defp get_trunc_length() do
     Application.get_env(:handin2, :trunc_length)
+  end
+
+  def new_unique_id(store) do
+    fn bitstring -> length(:ets.lookup(store, bitstring)) == 0 end
+    |> Handin2.Utils.gen_bitstring()
   end
 end

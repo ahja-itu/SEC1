@@ -12,14 +12,14 @@ defmodule Handin2.Commitments do
   Generates a random bitstring of length 256 and hashes it with the message.
   Returns the random bitstring and the hash.
   """
-  @spec! create(binary(), binary()) :: {binary(), binary()}
+  @spec! create(binary(), any()) :: {binary(), binary()}
   def create(bitstring, msg) do
-    {bitstring, Utils.hash(bitstring <> msg)}
+    {bitstring, Utils.hash(bitstring <> Kernel.to_string(msg))}
   end
 
-  @spec! create(binary()) :: {binary(), binary()}
+  @spec! create(any()) :: {binary(), binary()}
   def create(msg) do
-    create(Utils.gen_bitstring(), msg)
+    create(Utils.gen_bitstring(), Kernel.to_string(msg))
   end
 
   @doc """

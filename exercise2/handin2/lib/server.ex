@@ -33,51 +33,23 @@ defmodule Handin2.Server do
   end
 
   def handle_call({:commit, msg}, _from, store) do
-    %{
-      "client_commitment" => client_commitment,
-      "server_composite_commitment" => server_composite_commitment,
-    } = msg
-    new_game = Handin2.Game.new(client_commitment, server_composite_commitment)
+    game_id = Utils.new_unique_id(store)
 
-    validate = fn bitstring -> length(:ets.lookup(store, bitstring)) == 0 end
+    {game, response} = Game.new() |> Game.respond_commit(game_id, msg)
 
-    game_id = Handin2.Utils.gen_bitstring(validate)
-    :ets.insert(store, {game_id, new_game})
+    :ets.insert(store, {game_id, game})
 
-    commitment = Game.gen_commitment(new_game.server_roll |> Integer.to_string(), new_game.server_bitstring)
-    client_composite_commitment
-
-    Logger.info("Rolling dice: #{new_game.server_roll}")
-    Logger.info("Generating bitstring: #{new_game.server_bitstring |> Utils.trunc()}")
-    Logger.info("Replying with generated commitment: #{commitment |> Utils.trunc()}")
-
-    {:reply, {:ok, %{game_id: game_id, commitment: commitment}}, store}
+    {:reply, {:ok, response}, store}
   end
 
-  def handle_call({:reveal, game_id, %{"bitstring" => bitstring, "roll" => roll}}, _from, store) do
+  def handle_call({:reveal, game_id, msg}, _from, store) do
     case :ets.lookup(store, game_id) do
       [{^game_id, game}] ->
-        case Game.check_reveal(game, bitstring, roll) do
-          {:ok, result} ->
-            Logger.info(
-              "Opponent revealing commitment was successful! Results: server roll: #{game.server_roll}, client roll: #{roll}. Game won by #{result}"
-            )
-            :ets.delete(store, game_id)
+        {:ok, {updated_game, response}} = Game.respond_reveal(game, msg)
+        # TODO: can conclude game
+        Game.conclude(updated_game, :server)
 
-          {:error, reason} ->
-            Logger.error("Game failed with reason: #{reason}.")
-
-        end
-
-        reply = %{
-          winner: handle_game_lookup(game, bitstring, roll) |> elem(1),
-          game_id: game_id,
-          bitstring: game.server_bitstring,
-          roll: game.server_roll
-        }
-
-        {:reply, {:ok, reply}, store}
-
+        {:reply, {:ok, response}, store}
       [] ->
         {:reply, {:error, %{message: "No game found by game_id #{game_id |> Utils.trunc()}"}},
          store}
@@ -87,12 +59,5 @@ defmodule Handin2.Server do
   def handle_call(msg, _from, state) do
     Logger.error("Unsupported message: #{inspect(msg)}")
     {:reply, {:error, "Bad request"}, state}
-  end
-
-  defp handle_game_lookup(game, bitstring, roll) do
-    case Game.check_reveal(game, bitstring, roll) do
-      {:ok, conclusion} -> {:ok, conclusion}
-      {:error, msg} -> {:error, msg}
-    end
   end
 end

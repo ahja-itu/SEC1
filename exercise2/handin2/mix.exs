@@ -26,7 +26,7 @@ defmodule Handin2.MixProject do
       {:poison, "~> 5.0"},
       {:httpoison, "~> 1.8"},
       {:type_check, "~> 0.12.1"},
-      {:hackney, github: "benoitc/hackney", override: true}
+      {:hackney, github: "benoitc/hackney", override: true,  ref: "27bbf8ec11033e28c7b8424759851d2d9bafa887"}
     ]
   end
 end
