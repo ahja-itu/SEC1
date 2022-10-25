@@ -59,7 +59,7 @@ defmodule Handin2.Utils do
   end
 
   defp encode(bitstring) do
-    bitstring |> String.replace("/", "_")
+    bitstring |> Base.encode16() |> String.replace("/", "_")
   end
 
   defp get_trunc_length() do
