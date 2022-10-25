@@ -1,0 +1,16 @@
+version: "3.9"
+
+services:
+  alice:
+    build:
+      context: .
+      dockerfile: ./dockerfiles/dev.Dockerfile
+    volumes:
+      - ./handin2:/app
+    environment:
+      PLAYER: alice
+      PLAYERS: alice:4040
+      IS_PLAYING: "true"
+      KEEP_PLAYING: "false"
+      TRUNC_LENGTH: 0
+

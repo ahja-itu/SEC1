@@ -1,0 +1,18 @@
+version: "3.9"
+services:
+  alice:
+    image: andreaswachs/itu.sec1.ma2:latest
+    environment:
+      PLAYER: alice
+      PLAYERS: bob:4040
+      IS_PLAYING: "true"
+      KEEP_PLAYING: "false"
+      TRUNC_LENGTH: 0
+  bob:
+    image: andreaswachs/itu.sec1.ma2:latest
+    environment:
+      PLAYER: bob
+      PLAYERS: alice:4040
+      IS_PLAYING: "false"
+      KEEP_PLAYING: "false"
+      TRUNC_LENGTH: 0

@@ -1,0 +1,24 @@
+version: "3.9"
+
+services:
+  alice:
+    build:
+      context: .
+      dockerfile: ./dockerfiles/actor.Dockerfile
+    environment:
+      PLAYER: alice
+      PLAYERS: bob:4040
+      IS_PLAYING: "true"
+      KEEP_PLAYING: "false"
+      TRUNC_LENGTH: 0
+
+  bob:
+    build:
+      context: .
+      dockerfile: ./dockerfiles/actor.Dockerfile
+    environment:
+      PLAYER: bob
+      PLAYERS: alice:4040
+      IS_PLAYING: "false"
+      KEEP_PLAYING: "false"
+      TRUNC_LENGTH: 0
