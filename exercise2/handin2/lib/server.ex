@@ -24,10 +24,7 @@ defmodule Handin2.Server do
   end
 
   def commit(msg) do
-    case Map.has_key?(msg, "commitment") do
-      true -> GenServer.call(__MODULE__, {:commit, Map.get(msg, "commitment")})
-      false -> {:error, "No commitment in message"}
-    end
+      GenServer.call(__MODULE__, {:commit, msg})
   end
 
   @spec! reveal(any, any) :: any
@@ -35,12 +32,12 @@ defmodule Handin2.Server do
     GenServer.call(__MODULE__, {:reveal, game_id, msg})
   end
 
-  @doc """
-  This handler handes the submission of a commitment from the client.
-  This signifies a new game.
-  """
-  def handle_call({:commit, client_commitment}, _from, store) do
-    new_game = Handin2.Game.new(client_commitment)
+  def handle_call({:commit, msg}, _from, store) do
+    %{
+      "client_commitment" => client_commitment,
+      "server_composite_commitment" => server_composite_commitment,
+    } = msg
+    new_game = Handin2.Game.new(client_commitment, server_composite_commitment)
 
     validate = fn bitstring -> length(:ets.lookup(store, bitstring)) == 0 end
 
@@ -48,6 +45,7 @@ defmodule Handin2.Server do
     :ets.insert(store, {game_id, new_game})
 
     commitment = Game.gen_commitment(new_game.server_roll |> Integer.to_string(), new_game.server_bitstring)
+    client_composite_commitment
 
     Logger.info("Rolling dice: #{new_game.server_roll}")
     Logger.info("Generating bitstring: #{new_game.server_bitstring |> Utils.trunc()}")

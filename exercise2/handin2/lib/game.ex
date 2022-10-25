@@ -1,21 +1,33 @@
 defmodule Handin2.Game do
   use TypeCheck
 
-  alias Handin2.{Utils, Commitments}
+  alias Handin2.{Utils, Commitments, Roll}
 
   @faces 6
 
-  defstruct client_commit: :unset,
-            server_roll: :unset,
-            server_bitstring: :unset
+  # defstruct client_commit: :unset,
+  #           server_roll: :unset,
+  #           server_bitstring: :unset
+
+
+  defstruct own_roll: :unset,
+            opponent_roll: :unset
 
   @spec! new(String.t()) :: map()
-  def new(client_commitment) do
+  def new(client_commitment, server_composite_commitment) do
     %Handin2.Game{
-      client_commit: client_commitment,
-      server_roll: :rand.uniform(6),
-      server_bitstring: Utils.gen_bitstring()
+      own_roll: Roll.new(),
+      opponent_roll: Roll.new()
     }
+
+    # %Handin2.Game{
+    #   client_commit: client_commitment,
+    #   server_composite_commitment: server_composite_commitment,
+    #   client_composite_roll: dice_roll(),
+    #   server_roll: dice_roll(),
+    #   server_composite_roll: :unset,
+    #   server_bitstring: Utils.gen_bitstring()
+    #
   end
 
   @spec! gen_commitment(%Handin2.Game{}) :: binary()
@@ -48,5 +60,9 @@ defmodule Handin2.Game do
       game.server_roll > client_roll -> :server
       game.server_roll < client_roll -> :client
     end
+  end
+
+  def get_faces() do
+    @faces
   end
 end
