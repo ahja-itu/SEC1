@@ -10,7 +10,7 @@ build:
 	docker-compose build
 
 dev:
-	docker-compose -f docker-compose-dev.yaml --build --remove-orphans
+	docker-compose -f docker-compose-dev.yaml up --build --remove-orphans
 
 run:
 	docker-compose up
