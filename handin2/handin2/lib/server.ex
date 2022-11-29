@@ -46,7 +46,6 @@ defmodule Handin2.Server do
     case :ets.lookup(store, game_id) do
       [{^game_id, game}] ->
         {:ok, {updated_game, response}} = Game.respond_reveal(game, msg)
-        # TODO: can conclude game
         Game.conclude(updated_game, :server)
 
         {:reply, {:ok, response}, store}
