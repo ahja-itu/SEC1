@@ -4,7 +4,7 @@ services:
   alice:
     build:
       context: .
-      dockerfile: ./dockerfiles/actor.Dockerfile
+      dockerfile: ./dockerfiles/release.Dockerfile
     environment:
       PLAYER: alice
       PLAYERS: bob:4040
@@ -15,7 +15,7 @@ services:
   bob:
     build:
       context: .
-      dockerfile: ./dockerfiles/actor.Dockerfile
+      dockerfile: ./dockerfiles/release.Dockerfile
     environment:
       PLAYER: bob
       PLAYERS: alice:4040

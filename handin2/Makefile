@@ -21,6 +21,6 @@ run-remote:
 setup: gen-certs build
 
 build-and-push:
-	docker build -t itu.sec1.ma2 -f dockerfiles/actor.Dockerfile .
+	docker build -t itu.sec1.ma2 -f dockerfiles/release.Dockerfile .
 	docker tag itu.sec1.ma2 andreaswachs/itu.sec1.ma2:latest
 	docker push andreaswachs/itu.sec1.ma2:latest
